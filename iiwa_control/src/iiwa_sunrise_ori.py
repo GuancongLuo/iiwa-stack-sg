@@ -29,7 +29,7 @@
 
 import rospy
 
-from iiwa_msgs.msg import JointPosition, JointQuantity, CartesianPose, RedundancyInformation
+from iiwa_msgs.msg import JointPosition
 from iiwa_msgs.srv import ConfigureControlMode, ConfigureControlModeRequest, ConfigureControlModeResponse
 from iiwa_msgs.srv import SetSmartServoJointSpeedLimits, SetSmartServoJointSpeedLimitsRequest, SetSmartServoJointSpeedLimitsResponse
 from iiwa_msgs.srv import SetSmartServoLinSpeedLimits, SetSmartServoLinSpeedLimitsRequest, SetSmartServoLinSpeedLimitsResponse
@@ -128,8 +128,7 @@ class IiwaSunrise(object):
     redundancy_sub = Subscriber('command/redundancy', Float64, self.redundancyCb, queue_size = 1)
     joint_position_sub = Subscriber('command/JointPosition', JointPosition, self.jointPositionCb, queue_size = 1)
 
-    self.state_pose_pub = Publisher('state/CartesianPose', CartesianPose, queue_size = 1)
-    self.state_joint_pub = Publisher('state/JointPosition', JointPosition, queue_size = 1)
+    self.state_pose_pub = Publisher('state/CartesianPose', PoseStamped, queue_size = 1)
     self.joint_trajectory_pub = Publisher(
         '{}_trajectory_controller/command'.format(hardware_interface), JointTrajectory, queue_size = 1)
 
@@ -186,22 +185,14 @@ class IiwaSunrise(object):
     q0E = quaternion_from_matrix(H0E)
 
     self.state_pose_pub.publish(
-        CartesianPose(
-          poseStamped = PoseStamped(
-            header = Header(
-              frame_id = '{}_link_0'.format(self.robot_name)),
-            pose = Pose(
-              position = Point(
-                x = H0E[0,3], y = H0E[1,3], z = H0E[2,3]),
-              orientation = Quaternion(
-                x = q0E[0], y = q0E[1], z = q0E[2], w = q0E[3]))),
-          redundancy = RedundancyInformation(e1 = 0.0, status = 0, turn = 0)))
-
-    self.state_joint_pub.publish(
-       JointPosition(
-        header = Header(
-          frame_id = '{}_link_0'.format(self.robot_name)),
-        position = JointQuantity(a1 = t[0], a2 = t[1], a3 = t[2], a4 = t[3], a5 = t[4], a6 = t[5], a7 = t[6])))
+        PoseStamped(
+          header = Header(
+            frame_id = '{}_link_0'.format(self.robot_name)),
+          pose = Pose(
+            position = Point(
+              x = H0E[0,3], y = H0E[1,3], z = H0E[2,3]),
+            orientation = Quaternion(
+              x = q0E[0], y = q0E[1], z = q0E[2], w = q0E[3]))))
 
   def commandPoseCb(self, msg):
     T0 = clock()

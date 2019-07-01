@@ -48,5 +48,13 @@ add_executable(iiwa_ros_test src/main.cpp)
 target_include_directories(iiwa_ros_test PUBLIC include ${catkin_INCLUDE_DIRS})
 target_link_libraries(iiwa_ros_test ${PROJECT_NAME})
 
+add_executable(iiwa_ros_joint src/tests/test_joint.cpp)
+target_include_directories(iiwa_ros_joint PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(iiwa_ros_joint ${PROJECT_NAME})
+
+add_executable(iiwa_ros_cartesian src/tests/test_cartesian.cpp)
+target_include_directories(iiwa_ros_cartesian PUBLIC include ${catkin_INCLUDE_DIRS})
+target_link_libraries(iiwa_ros_cartesian ${PROJECT_NAME})
+
 ## Add dependence to the iiwa_msg module for the library
 add_dependencies(${PROJECT_NAME} iiwa_msgs_generate_messages_cpp)

@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+<name>motion_msgs</name>
+  <version>2.3.1</version>
+  <description>ROS Messages to communicate with a KUKA LBR IIWA Robot</description>
+  <author email="caica@tum.de">cai</author>
+  <maintainer email="caica@tum.de">cai</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <depend>actionlib_msgs</depend>
+  <depend>message_generation</depend>
+  <depend>message_runtime</depend>
+  <depend>std_msgs</depend>
+  <depend>geometry_msgs</depend>
+</package>

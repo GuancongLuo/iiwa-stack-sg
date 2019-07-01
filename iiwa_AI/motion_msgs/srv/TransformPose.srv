@@ -1,0 +1,6 @@
+geometry_msgs/PoseStamped pose
+string target_frame #frame wrt to which pose should be tranformed to
+---
+geometry_msgs/PoseStamped poseWrtTarget
+bool success
+

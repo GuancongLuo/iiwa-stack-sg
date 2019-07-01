@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<launch>
+   
+    <!-- These are the arguments you can pass this launch file -->
+    <arg name="object_frame"     default="object_frame"/>
+    <arg name="camera_frame"     default="iiwa_link_camera"/> 
+    <arg name="camera_ref_frame" default="iiwa_link_ee"/>    <!-- suppose the camera is attached at end-effector of iiwa -->
+    <arg name="robot_base"       default="iiwa_link_0"/>
+       
+    <node pkg="iiwa_motion" type="iiwa_motion_node" name="iiwa_motion" output="screen">
+        <param name="object_frame"       value="$(arg object_frame)" />
+        <param name="camera_frame"       value="$(arg camera_frame)" />
+        <param name="camera_ref_frame"   value="$(arg camera_ref_frame)" />
+        <param name="robot_base"         value="$(arg robot_base)" />
+    </node>
+
+    <node pkg="iiwa_motion" type="tf_server.py" name="tf_server" output="screen"/>
+    
+    
+</launch>
+    
