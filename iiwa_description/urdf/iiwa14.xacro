@@ -338,6 +338,16 @@
     <link name="${robot_name}_link_ee">
     </link>
     
+    <!--Cai: add camera frame -->
+    <joint name="${robot_name}_joint_camera" type="fixed">
+      <parent link="${robot_name}_link_ee"/>
+      <child link="${robot_name}_link_camera"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+    </joint>
+    
+    <link name="${robot_name}_link_camera">
+    </link>
+
     <!--Extensions -->
     <xacro:iiwa_gazebo robot_name="${robot_name}" />
     <xacro:iiwa_transmission hardware_interface="${hardware_interface}"/>

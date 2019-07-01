@@ -8,9 +8,6 @@ This package is design for collaborative AI project.
         
 * run iiwa ros services: 
 
-        $ rosrun iiwa_motion iiwa_motion_node
-        $ rosrun iiwa_motion tf_server.py
-        or
         $ roslaunch iiwa_motion iiwa_sim.launch
 
  * test command iiwa, which should be called by other package (e.g. high-level object pose) : 

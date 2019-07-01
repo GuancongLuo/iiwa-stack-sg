@@ -1,6 +1,6 @@
 ## IIWA STACK
 
-* **iiwa_stack: **  the full origial one: https://github.com/IFL-CAMP/iiwa_stack, check readme_origin.md
+* **iiwa_stack:**  the full origial one: https://github.com/IFL-CAMP/iiwa_stack, check readme_origin.md
 
             I add my own package iiwa_mition on top of it, and also modified some files.
 
