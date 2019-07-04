@@ -47,7 +47,7 @@ class MotionROS
         void printPoseStamp(geometry_msgs::PoseStamped& poseStamped);
 
         // tf_tools
-        static geometry_msgs::Pose getPoseWrtFrame(ros::NodeHandle &node, const std::string child_frame, const std::string frame);
+        static geometry_msgs::PoseStamped getPoseWrtFrame(ros::NodeHandle &node, const std::string child_frame, const std::string frame);
         static geometry_msgs::PoseStamped transformPoseWrtFrame(ros::NodeHandle& node, const geometry_msgs::PoseStamped& pose, const std::string frame);
 
         //iiwa_ros states

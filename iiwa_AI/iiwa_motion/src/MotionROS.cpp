@@ -61,55 +61,53 @@ bool MotionROS::set_relative_callback(motion_msgs::SetRelativePose::Request& req
 bool MotionROS::setAbsolutePose(motion_msgs::AbsoluteMotion& motion)
 {
     //get current object pose wrt camera
-    geometry_msgs::PoseStamped cur_object_cam;
-    cur_object_cam = motion.pose_cur;
+    std::string name = motion.motion_name;
+    geometry_msgs::PoseStamped cur_object_cam = motion.pose_cur;
+    geometry_msgs::PoseStamped des_object_cam = motion.pose_des;
 
-    // 1.get the current object pose wrt robot base frame: two ways
-    // use tf tree
+    // 2. There are two ways to get the current object wrt base frame: object_base
+    // Method 1: use tf tree
     geometry_msgs::PoseStamped cur_object_base1 = transformPoseWrtFrame(nh, cur_object_cam, robot_base);
     std::cout << "--------------------------Current object pose wrt base 1: \n";
     printPoseStamp(cur_object_base1);
+    Eigen::Affine3d object_base_tr;
+    tf::poseMsgToEigen(cur_object_base1.pose, object_base_tr);
 
-    // normal multipy
-    Eigen::Affine3d ef_base_tr, object_cam_tr, object_base_tr;
-
-    ///current robot state
+    // current robot state
     iiwa_msgs::CartesianPose car_pose = pose_state.getPose();
     current_ef_pose = car_pose.poseStamped;
     std::cout << "***************************Current robot ef pose : \n";
-    printPoseStamp(car_pose.poseStamped);
-    tf::poseMsgToEigen(current_ef_pose.pose, ef_base_tr);
-    tf::poseMsgToEigen(cur_object_cam.pose, object_cam_tr);
-    object_base_tr = ef_base_tr * trans_camera_ef * object_cam_tr;
+    printPoseStamp(current_ef_pose);
 
-    geometry_msgs::Pose pose;
-    tf::poseEigenToMsg(object_base_tr, pose);
-    geometry_msgs::PoseStamped cur_object_base2;
-    cur_object_base2.header.frame_id = robot_base;
-    cur_object_base2.pose = pose;
-    std::cout << "--------------------------Current object pose wrt base 2: \n";
-    printPoseStamp(cur_object_base2);
+    // Method 2: normal multipy. check the frames.pdf
+//    Eigen::Affine3d ef_base_tr, object_cam_tr;
+//    tf::poseMsgToEigen(current_ef_pose.pose, ef_base_tr);
+//    tf::poseMsgToEigen(cur_object_cam.pose, object_cam_tr);
+//    object_base_tr = ef_base_tr * trans_camera_ef * object_cam_tr;
+//    geometry_msgs::Pose pose;
+//    tf::poseEigenToMsg(object_base_tr, pose);
+//    geometry_msgs::PoseStamped cur_object_base2;
+//    cur_object_base2.header.frame_id = robot_base;
+//    cur_object_base2.pose = pose;
+//    std::cout << "--------------------------Current object pose wrt base 2: \n";
+//    printPoseStamp(cur_object_base2);
 
-    // 2. compute the desired ef pose wrt base frame,
-    // this can not use tf tree since its not current state
-    geometry_msgs::PoseStamped des_object_cam;
-    des_object_cam = motion.pose_des;
-
+    // 2. compute the desired ef pose wrt base frame: des_ef_base
+    /// this can not use tf tree since its not current state
     Eigen::Affine3d des_ef_base_tr, des_object_cam_tr;
     tf::poseMsgToEigen(des_object_cam.pose, des_object_cam_tr);
     des_ef_base_tr = object_base_tr * des_object_cam_tr.inverse() * trans_camera_ef.inverse();
 
     geometry_msgs::Pose des_ef;
     tf::poseEigenToMsg(des_ef_base_tr, des_ef);
-    geometry_msgs::PoseStamped des_ef_base;
-    des_ef_base.header.frame_id = robot_base;
-    des_ef_base.pose = des_ef;
+    desired_ef_pose.header.frame_id = robot_base;
+    desired_ef_pose.pose = des_ef;
     std::cout << "***************************Desired robot ef pose : \n";
-    printPoseStamp(des_ef_base);
+    printPoseStamp(desired_ef_pose); //wait for the robot finish movement
 
     // 3. move the robot arm
-    pose_command.setPose(des_ef_base);
-//    ros::Duration(0.5).sleep();
+    pose_command.setPose(desired_ef_pose);
+    ros::Duration(5).sleep();
 
     return true;
 }
@@ -120,22 +118,88 @@ bool MotionROS::setRelativePose(motion_msgs::RelativeMotion& motion)
 #ifdef DEBUG_PRINT
     std::cout <<"\n=========================================================:";
 #endif
-//    for(std::vector<actor_msgs::Actor>::iterator it = gpp_boxes.begin(); it != gpp_boxes.end(); ++it)
-//    {
-//        it->dependency_x.clear();  it->dependency_y.clear();  it->dependency_z.clear();
-//        for(std::vector<actor_msgs::Actor>::iterator it_in = gpp_boxes.begin(); it_in != gpp_boxes.end(); ++it_in)
-//        {
-//            if( (it_in != it) && (xBlocking(*it_in, *it)) )
-//            {
-//                // if *it blocks box *it_in
-//                it->dependency_x.push_back(it_in->uuid);
-//            }
-//            if( (it_in != it) && (yBlocking(*it_in, *it)) )
-//                it->dependency_y.push_back(it_in->uuid);
-//            if( (it_in != it) && (zBlocking(*it_in, *it)) )
-//                it->dependency_z.push_back(it_in->uuid);
-//        }
-//    }
+    std::string name = motion.motion_name;
+    geometry_msgs::PoseStamped cur_object_cam = motion.pose_cur;
+    std::float_t percentage = motion.percentage_des;
+
+    //0. get the current camera pose wrt object, use tf tree
+    geometry_msgs::PoseStamped cur_cam_object = getPoseWrtFrame(nh, camera_frame, object_frame);
+    std::cout << "--------------------------Current camera pose wrt object_frame: \n";
+    printPoseStamp(cur_cam_object);
+
+    // ------------------------------------------------------------------------
+    //1. get the desired camera pose wrt object
+    geometry_msgs::PoseStamped des_cam_object = cur_cam_object;
+    std::float_t scale = 1 + percentage/100.0;
+    if(name == "distance")
+    {
+        std::cout << "Desired percetage : " << 1 + percentage/100.0 << std::endl;
+        des_cam_object.pose.position.x = cur_cam_object.pose.position.x * scale;
+        des_cam_object.pose.position.y = cur_cam_object.pose.position.y * scale;
+        des_cam_object.pose.position.z = cur_cam_object.pose.position.z * scale;
+    }
+    else if (name == "height")
+    {
+        std::cout << "Desired percetage : " << 1 + percentage/100.0 << std::endl;
+        des_cam_object.pose.position.z = cur_cam_object.pose.position.z * scale;
+    }
+    else if (name == "angle")
+    {
+        double angle = percentage/180.0*M_PI;  //rad
+        std::cout << "Desired angle : " << angle << std::endl; //left is -
+
+        // cam_object vector rotate around Z cam n degree
+        Eigen::Affine3d Mat_new_old = Eigen::Affine3d(Eigen::AngleAxisd(angle, Eigen::Vector3d(0, 0, 1)));
+//        Eigen::Affine3d m = Eigen::Affine3d(Eigen::AngleAxisd(angle/180.0*M_PI, Eigen::Vector3d::UnitZ()));
+
+        Eigen::Affine3d cam_object_tr, cam_object_old;
+        tf::poseMsgToEigen(cur_cam_object.pose, cam_object_tr);
+        cam_object_old = Mat_new_old * cam_object_tr;
+
+        geometry_msgs::Pose des_cam;
+        tf::poseEigenToMsg(cam_object_old, des_cam);
+        des_cam_object.pose = des_cam;
+    }
+    else
+    {
+        std::cout << "Wrong robot command name!!!!!!!!!!!!!!!!!!!!!!!!! \n";
+    }
+    std::cout << "--------------------------Desired camera pose wrt object_frame: \n";
+    printPoseStamp(des_cam_object);
+    // ------------------------------------------------------------------------
+
+
+    //2. compute the desired ef pose wrt base frame
+    /// 1) object_wrt_base, use tf tree
+    geometry_msgs::PoseStamped cur_object_base = transformPoseWrtFrame(nh, cur_object_cam, robot_base);
+    std::cout << "--------------------------Current object pose wrt base:  \n";
+    printPoseStamp(cur_object_base);
+    Eigen::Affine3d object_base_tr;
+    tf::poseMsgToEigen(cur_object_base.pose, object_base_tr);
+
+    // current robot state
+    iiwa_msgs::CartesianPose car_pose = pose_state.getPose();
+    current_ef_pose = car_pose.poseStamped;
+    std::cout << "***************************Current robot ef pose : \n";
+    printPoseStamp(current_ef_pose);
+
+    /// 2) des_cam_object
+    Eigen::Affine3d des_ef_base_tr, des_cam_object_tr;
+    tf::poseMsgToEigen(des_cam_object.pose, des_cam_object_tr);
+    des_ef_base_tr = object_base_tr * des_cam_object_tr * trans_camera_ef.inverse();
+
+    /// 2) des_ef_base
+    geometry_msgs::Pose des_ef;
+    tf::poseEigenToMsg(des_ef_base_tr, des_ef);
+    desired_ef_pose.header.frame_id = robot_base;
+    desired_ef_pose.pose = des_ef;
+    std::cout << "***************************Desired robot ef pose : \n";
+    printPoseStamp(desired_ef_pose); //wait for the robot finish movement
+
+    // 3. move the robot arm
+    pose_command.setPose(desired_ef_pose);
+    ros::Duration(5).sleep();
+
     return true;
 }
 
@@ -151,7 +215,7 @@ void MotionROS::printPoseStamp(geometry_msgs::PoseStamped &poseStamped)
 }
 
 //get the transform between two frames
-geometry_msgs::Pose MotionROS::getPoseWrtFrame(ros::NodeHandle &node, const std::string child_frame, const std::string frame)
+geometry_msgs::PoseStamped MotionROS::getPoseWrtFrame(ros::NodeHandle &node, const std::string child_frame, const std::string frame)
 {
     ros::ServiceClient client = node.serviceClient<motion_msgs::GetTransform>("/tf_server/get_transform");
     motion_msgs::GetTransform srv;
@@ -165,7 +229,10 @@ geometry_msgs::Pose MotionROS::getPoseWrtFrame(ros::NodeHandle &node, const std:
         tf::transformMsgToEigen(srv.response.transform, pose_tr);
         tf::poseEigenToMsg(pose_tr, pose);
 
-        return pose;
+        geometry_msgs::PoseStamped poseStamp;
+        poseStamp.header.frame_id = frame;
+        poseStamp.pose = pose;
+        return poseStamp;
     }
     else
     {

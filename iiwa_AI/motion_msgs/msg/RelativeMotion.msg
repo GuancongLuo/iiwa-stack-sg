@@ -5,4 +5,4 @@ string motion_name
 geometry_msgs/PoseStamped pose_cur
 
 # desired
-int32 percentage_des
+float32 percentage_des
