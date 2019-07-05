@@ -93,7 +93,7 @@ int main(int argc, char **argv)
     std::thread obj_publish_thread(&ObjectDetectDummy::run, &obj);
 
     // ROS spinner.
-    ros::AsyncSpinner spinner(1);
+    ros::AsyncSpinner spinner(2);
     spinner.start();
 
     //current object pose wrt camera, 30cm in z
