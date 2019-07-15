@@ -15,7 +15,6 @@
     </node>
 
     <node pkg="iiwa_motion" type="tf_server.py" name="tf_server" output="screen"/>
-    
-    
+
 </launch>
     

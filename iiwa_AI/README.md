@@ -14,6 +14,10 @@ This package is design for collaborative AI project.
  
         $ rosrun iiwa_motion test_command_robot
         
+ * Visualization:
+     
+        $rviz
+        
         
         
 ### Send command use GUI:
