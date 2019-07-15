@@ -13,3 +13,7 @@ This package is design for collaborative AI project.
  * test command iiwa, which should be called by other package (e.g. high-level object pose) : 
  
         $ rosrun iiwa_motion test_command_robot
+        
+        
+        
+### Send command use GUI:
