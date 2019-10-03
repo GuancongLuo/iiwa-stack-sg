@@ -7,9 +7,6 @@
             },
             "includePath": [
                 "/home/cong/iiwa_demo_cai/devel/include",
-                "/home/cong/iiwa_stack_ws/devel/include",
-                "/home/cong/catkin_ws_Anno/devel/include",
-                "/home/cong/catkin_ws_realsense/devel/include",
                 "/opt/ros/kinetic/include",
                 "/home/cong/iiwa_demo_cai/src/iiwa_stack/iiwa_hw/include",
                 "/home/cong/iiwa_demo_cai/src/iiwa_stack/iiwa_AI/iiwa_motion/include",

@@ -12,3 +12,8 @@ iiwaGUI::~iiwaGUI()
 {
     delete ui;
 }
+
+// void iiwaGUI::on_pushButton_clicked()
+// {
+//     QmessageBox::worning(this,"My Tiele","This is my custom message");
+// }

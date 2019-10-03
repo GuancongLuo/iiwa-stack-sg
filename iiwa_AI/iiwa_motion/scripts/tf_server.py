@@ -57,12 +57,19 @@ def transform_pose_callback(req):
 	return {'poseWrtTarget': pose_target, 'success': success}	
 	
 def tf_server():
+	# node initallization
 	rospy.init_node('tf_server')
+
+	# rename TF Monitor
 	global tf_listener
 	tf_listener = tf.TransformListener()
+
+	# what is this ??? Coordinate transformation
+	# How to use ???  (interpolate=True, cache_time=None)
 	global tf_transformer
 	tf_transformer = tf.TransformerROS(True, rospy.Duration(10.0))
-
+	
+	# rospy service gettransform(customize) and transformpose(Already)
 	s = rospy.Service('/tf_server/get_transform', GetTransform,
 			get_transform_callback)
 	rospy.loginfo("Ready to /tf_server/get_transform")	
@@ -70,6 +77,8 @@ def tf_server():
 	s = rospy.Service('/tf_server/transform_pose', TransformPose,
 			transform_pose_callback)
 	rospy.loginfo("Ready to /tf_server/transform_pose")	
+
+	# waiting for callback
 	rospy.spin()
 
 if __name__ == "__main__":

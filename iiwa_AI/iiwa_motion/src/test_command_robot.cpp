@@ -15,6 +15,10 @@
 #include <tf/tf.h>
 #include <tf/transform_broadcaster.h>
 #include <tf/transform_listener.h>
+#include <tf_conversions/tf_eigen.h>
+#include <Eigen/Dense>
+#include <Eigen/Geometry>
+#include <eigen_conversions/eigen_msg.h>
 
 #include <motion_msgs/AbsoluteMotion.h>
 #include <motion_msgs/SetAbsolutePose.h>
@@ -29,7 +33,7 @@ class ObjectDetectDummy
   public:
     ObjectDetectDummy()
     {
-        camera_frame = "iiwa_link_camera";
+        camera_frame = "iiwa_link_0";
     }
     void run()
     {
@@ -37,11 +41,11 @@ class ObjectDetectDummy
         {
             //publish current object pose to tf wrt camera frame
             geometry_msgs::PoseStamped cur_object_cam;
-            cur_object_cam.header.frame_id = "iiwa_link_0"; //object orientation is the same as the base frame
+            cur_object_cam.header.frame_id = camera_frame; //object orientation is the same as the base frame
             cur_object_cam.pose = getPose();
             tf::Stamped<tf::Pose> st;
             tf::poseStampedMsgToTF(cur_object_cam, st);
-            tf_sender.sendTransform(tf::StampedTransform(st, ros::Time::now(), "iiwa_link_0", "object_frame"));
+            tf_sender.sendTransform(tf::StampedTransform(st, ros::Time::now(), camera_frame, "object_frame"));
             std::cout << "Publish tf tree================\n";
             ros::spinOnce();
             ros::Duration(2).sleep();
@@ -52,16 +56,15 @@ class ObjectDetectDummy
     {
         mutex_pose.lock();
         pose_ = pose;
-        //fake the pose: get current object pose wrt iiwa_link_0
-        // Current object pose wrt base: iiwa_link_0 -- 0.711442 0.301436 0.387487 0.000083 0.000352 0.001049 0.999999
+        //fake the pose: get current object pose wrt iiwa_link_0 directly
         // for real system, every time will get the object_cam, and cam_base
-        pose_.position.x = 0.711442;
-        pose_.position.y = 0.301436;
-        pose_.position.z = 0.387487;
-        pose_.orientation.x = 0;
-        pose_.orientation.y = 0;
-        pose_.orientation.z = 0;
-        pose_.orientation.w = 1;
+        // pose_.position.x = 0.402351;
+        // pose_.position.y = 0.000632;
+        // pose_.position.z = 0.317743;
+        // pose_.orientation.x = 0;
+        // pose_.orientation.y = 0;
+        // pose_.orientation.z = 0;
+        // pose_.orientation.w = 1;
         mutex_pose.unlock();
     }
 
@@ -103,14 +106,14 @@ int main(int argc, char **argv)
     cur_pose.pose.position.y = 0.0;
     cur_pose.pose.position.z = 0.3;
     cur_pose.pose.orientation.x = 0;
-    cur_pose.pose.orientation.y = -0.9238795;
+    cur_pose.pose.orientation.y = -0.9848078;
     cur_pose.pose.orientation.z = 0;
-    cur_pose.pose.orientation.w = 0.3826834;
-    obj.setPose(cur_pose.pose);
+    cur_pose.pose.orientation.w = 0.1736482;
+   // obj.setPose(cur_pose.pose);
 
     //desired object pose wrt camera: the same point
     geometry_msgs::PoseStamped des_pose = cur_pose;
-    des_pose.pose.position.z = 0.1;
+    des_pose.pose.position.z = 0.2; 
 
     // ***************************************************************
     // move robot to current position first
@@ -120,18 +123,31 @@ int main(int argc, char **argv)
     pose_state.init("iiwa");
     ros::Duration(1).sleep();
 
-    // move robot to current pose
+    // move robot wrt base to current pose
     geometry_msgs::PoseStamped command_pose;
     command_pose.header.frame_id = "iiwa_link_0";
-    command_pose.pose.position.x = 0.5;
-    command_pose.pose.position.y = 0.3;
+    command_pose.pose.position.x = 0.3; 
+    command_pose.pose.position.y = 0.0;
     command_pose.pose.position.z = 0.6;
     command_pose.pose.orientation.x = 0;
-    command_pose.pose.orientation.y = 0.9238795;
+    command_pose.pose.orientation.y = 0.9848078; 
     command_pose.pose.orientation.z = 0;
-    command_pose.pose.orientation.w = 0.3826834;
+    command_pose.pose.orientation.w = 0.1736482;
     pose_command.setPose(command_pose);
     std::cout << "iiwa is in the current position!--------\n";
+
+    // get the object pose wrt base
+    Eigen::Affine3d object_cam_tr, cam_base_tr, object_base_tr;
+    tf::poseMsgToEigen(cur_pose.pose, object_cam_tr);
+    tf::poseMsgToEigen(command_pose.pose, cam_base_tr);
+    object_base_tr = cam_base_tr * object_cam_tr;  // TODO:have to add the camera wrt link_ee
+    geometry_msgs::Pose object_base;
+    tf::poseEigenToMsg(object_base_tr, object_base);
+    obj.setPose(object_base);
+    std::cout << "***************************TF for fixed object  pose : \n";
+    std::cout << object_base.position.x << ",  " << object_base.position.y << ",  " << object_base.position.z << ",  "<< object_base.orientation.w << "\n "; 
+
+
     ros::Duration(5).sleep(); //wait for the robot finish movement
 
     // print current robot pose
@@ -168,7 +184,7 @@ int main(int argc, char **argv)
     motion_msgs::SetRelativePose srv2;
     srv2.request.motion.motion_name = "angle";
     srv2.request.motion.pose_cur = cur_pose;
-    srv2.request.motion.percentage_des = -45.0;
+    srv2.request.motion.percentage_des = -180.0;
     std::cout <<"Start to call ros service /iiwa_motion/relative_motion......\n";
     if (client_relative.call(srv2))
     {

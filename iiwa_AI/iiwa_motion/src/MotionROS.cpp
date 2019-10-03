@@ -115,6 +115,8 @@ bool MotionROS::setAbsolutePose(motion_msgs::AbsoluteMotion& motion)
 //
 bool MotionROS::setRelativePose(motion_msgs::RelativeMotion& motion)
 {
+
+    // ??? What is mean?
 #ifdef DEBUG_PRINT
     std::cout <<"\n=========================================================:";
 #endif
@@ -148,9 +150,9 @@ bool MotionROS::setRelativePose(motion_msgs::RelativeMotion& motion)
         double angle = percentage/180.0*M_PI;  //rad
         std::cout << "Desired angle : " << angle << std::endl; //left is -
 
-        // cam_object vector rotate around Z cam n degree
+        // cam_object vector rotate around Z object n degree
         Eigen::Affine3d Mat_new_old = Eigen::Affine3d(Eigen::AngleAxisd(angle, Eigen::Vector3d(0, 0, 1)));
-//        Eigen::Affine3d m = Eigen::Affine3d(Eigen::AngleAxisd(angle/180.0*M_PI, Eigen::Vector3d::UnitZ()));
+        // Eigen::Affine3d m = Eigen::Affine3d(Eigen::AngleAxisd(angle/180.0*M_PI, Eigen::Vector3d::UnitZ()));
 
         Eigen::Affine3d cam_object_tr, cam_object_old;
         tf::poseMsgToEigen(cur_cam_object.pose, cam_object_tr);
@@ -164,7 +166,7 @@ bool MotionROS::setRelativePose(motion_msgs::RelativeMotion& motion)
     {
         std::cout << "Wrong robot command name!!!!!!!!!!!!!!!!!!!!!!!!! \n";
     }
-    std::cout << "--------------------------Desired camera pose wrt object_frame: \n";
+    std::cout << "--------------------------Desired camera pose wrt object_frame relatived: \n";
     printPoseStamp(des_cam_object);
     // ------------------------------------------------------------------------
 
