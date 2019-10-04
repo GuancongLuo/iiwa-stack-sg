@@ -184,7 +184,7 @@ int main(int argc, char **argv)
     motion_msgs::SetRelativePose srv2;
     srv2.request.motion.motion_name = "angle";
     srv2.request.motion.pose_cur = cur_pose;
-    srv2.request.motion.percentage_des = -180.0;
+    srv2.request.motion.percentage_des = -45.0;
     std::cout <<"Start to call ros service /iiwa_motion/relative_motion......\n";
     if (client_relative.call(srv2))
     {
