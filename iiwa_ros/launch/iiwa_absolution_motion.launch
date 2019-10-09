@@ -9,8 +9,8 @@
         ['spec','handeye','take,remove', 'spec', 'foo', 'spam', 'bar,baz']
     </rosparam> -->
     
-    <!-- position unit 'm' rotation unit 'rad/s' -->
-    <param name = "direction_x_add" type = "double" value = "0" />
+    <!-- position unit 'm' rotation unit 'rad/s degree' -->
+    <param name = "direction_x_add" type = "double" value = "-0.05" />
     <param name = "direction_y_add" type = "double" value = "0" />
     <param name = "direction_z_add" type = "double" value = "0" />
     <!-- rotation around Tool Center Point -->
@@ -18,7 +18,7 @@
     <param name = "rotation_y" type = "double" value = "0" />
     <param name = "rotation_z" type = "double" value = "0" />
     <!-- CartesianPose (=1) or CartesianPoseLinear (=0) -->
-    <!-- <param name = "command_cartisian_mode" type = "double" value = "1" /> -->
+    <param name = "command_cartisian_mode" type = "double" value = "1" />
 
     <node pkg="iiwa_ros" type="iiwa_ros_cartesian_gauncong" name="CartesianPoseState_1569786053275419313" output="screen" />
 

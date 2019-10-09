@@ -106,13 +106,17 @@ int main(int argc, char **argv)
       pose_command.setPose(command_pose);
 
       //  excute rotation command
+      double rotation_x_radian = rotation_x * 180/M_PI;
+      double rotation_y_radian = rotation_y * 180/M_PI;
+      double rotation_z_radian = rotation_z * 180/M_PI;
+
       tf2::Quaternion q_orig,q_rot,q_new;
 
       tf2::convert(command_pose.pose.orientation,q_orig);
-      q_rot.setRPY(rotation_x,rotation_y,rotation_z);
-      // juedui zuobiao
+      q_rot.setRPY(rotation_x_radian,rotation_y_radian,rotation_z_radian);
+      // world frame
       // q_new = q_rot*q_orig;
-      // xiangdui zhuobiao
+      // TCP frame
       q_new = q_orig*q_rot;      
       q_new.normalize();
 

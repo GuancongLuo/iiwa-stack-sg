@@ -50,6 +50,12 @@ add_executable(iiwa_subsrciber
 )
 target_link_libraries(iiwa_subsrciber ${catkin_LIBRARIES} )
 
+# test how to subsript the robot message
+add_executable(iiwa_handGuading_guancong
+               src/iiwa_handGuading_guancong.cpp
+)
+target_link_libraries(iiwa_handGuading_guancong ${catkin_LIBRARIES} )
+
 add_executable(iiwa_command_test_guancong
                src/iiwa_command_test_guancong.cpp
 )
