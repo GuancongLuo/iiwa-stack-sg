@@ -1,24 +1,14 @@
 <?xml version="1.0"?>
 <launch>
-    <!--
-    Setting this parameter to create a toolbar of name "handeye with a double button, take and remove,
-    and another one with name foo, a single button spam and a double button, bar and baz
-    -->
-
+    <!-- position unit 'm' rotation unit 'rad/s degree' -->
     <arg name="direction_x_add"     default="0.0"/>
     <arg name="direction_y_add"     default="0.0"/>
     <arg name="direction_z_add"     default="0.0"/>
-
-    <!-- position unit 'm' rotation unit 'rad/s degree' -->
-
-    <!-- <param name = "direction_x_add" type = "double" value = "0" />
-    <param name = "direction_y_add" type = "double" value = "0" />
-    <param name = "direction_z_add" type = "double" value = "-0.3" /> -->
-
     <!-- rotation around Tool Center Point -->
-    <param name = "rotation_x" type = "double" value = "0" />
-    <param name = "rotation_y" type = "double" value = "0" />
-    <param name = "rotation_z" type = "double" value = "0" />
+    <arg name="rotation_x"     default="0.0"/>
+    <arg name="rotation_y"     default="0.0"/>
+    <arg name="rotation_z"     default="0.0"/>
+
     <!-- CartesianPose (=1) or CartesianPoseLinear (=0) -->
     <param name = "command_cartisian_mode" type = "double" value = "1" />
 
@@ -27,6 +17,9 @@
         <param name="direction_x_add"  value="$(arg direction_x_add)" />
         <param name="direction_y_add"  value="$(arg direction_y_add)" />
         <param name="direction_z_add"  value="$(arg direction_z_add)" />
+        <param name="rotation_x"  value="$(arg rotation_x)" />
+        <param name="rotation_y"  value="$(arg rotation_y)" />
+        <param name="rotation_z"  value="$(arg rotation_z)" />
     </node>
 
 </launch>
