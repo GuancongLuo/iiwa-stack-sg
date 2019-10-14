@@ -20,12 +20,20 @@ static bool quit{false};
 
 void signalHandler(int /*unused*/) { quit = true; }
 
-int main(int argc, char **argv)
+// int main(int argc, char **argv)
+int main()
 {
+  iiwa_ros::state::CartesianPose pose_state;
+  iiwa_ros::command::CartesianPose  pose_command;
+  pose_command.init("iiwa");  
+  pose_state.init("iiwa"); // That is the namespace under which the topic lives.
+
+  ROS_INFO("init is finish................. "); 
   // get roslauch param
-  ros::init(argc, argv, "show_param");
+  // ros::init(argc, argv, "test");
 
   ros::NodeHandle nh;
+  // ros::NodeHandle nh("~"); // private node handle
 
   double direction_x_add;
   double direction_y_add;
@@ -35,23 +43,18 @@ int main(int argc, char **argv)
   double rotation_z;
   double command_cartisian_mode;
   
-  nh.getParam("CartesianPoseState_1569786053275419313/direction_x_add", direction_x_add);
-  nh.getParam("CartesianPoseState_1569786053275419313/direction_y_add", direction_y_add);
-  nh.getParam("CartesianPoseState_1569786053275419313/direction_z_add", direction_z_add);
+  nh.getParam("CartesianPoseState/direction_x_add", direction_x_add);
+  nh.getParam("CartesianPoseState/direction_y_add", direction_y_add);
+  nh.getParam("CartesianPoseState/direction_z_add", direction_z_add);
   nh.getParam("rotation_x", rotation_x);
   nh.getParam("rotation_y", rotation_y);
   nh.getParam("rotation_z", rotation_z);
   nh.getParam("command_cartisian_mode", command_cartisian_mode);
 
-  ROS_INFO("parameter is finish load................. ");
+  ROS_INFO("parameter is finish load.................%f ",direction_z_add);
 
 
-  iiwa_ros::state::CartesianPose pose_state;
-  iiwa_ros::command::CartesianPose  pose_command;
-  pose_command.init("iiwa");  
-  pose_state.init("iiwa"); // That is the namespace under which the topic lives.
 
-  ROS_INFO("init is finish................. "); 
 
 
   // ROS spinner.
@@ -102,6 +105,8 @@ int main(int argc, char **argv)
   double rotation_y_radian = rotation_y * 180/M_PI;
   double rotation_z_radian = rotation_z * 180/M_PI;
 
+  
+
   tf2::Quaternion q_orig,q_rot,q_new;
 
   tf2::convert(command_pose.pose.orientation,q_orig);
@@ -118,12 +123,23 @@ int main(int argc, char **argv)
 
   ros::Duration(2).sleep();
 
+  while(!quit)
+  {
+    ROS_INFO_STREAM(
+      std::to_string(car_pose.poseStamped.pose.position.x)
+          << " " << std::to_string(car_pose.poseStamped.pose.position.y) << " " << std::to_string(car_pose.poseStamped.pose.position.z)
+          << " " << std::to_string(car_pose.poseStamped.pose.orientation.x) << " " << std::to_string(car_pose.poseStamped.pose.orientation.y)
+          << " " << std::to_string(car_pose.poseStamped.pose.orientation.z) << " " << std::to_string(car_pose.poseStamped.pose.orientation.w)
+          << std::endl;);
+    ros::Duration(0.1).sleep();
+  }
+
   std::cerr << "Stopping spinner..." << std::endl;
   spinner.stop();
 
   std::cerr << "Bye!" << std::endl;
 
-	ros::shutdown();
+	// ros::shutdown();
 
   return 0;
 }

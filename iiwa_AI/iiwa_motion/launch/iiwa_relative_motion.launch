@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<launch>
+    <!-- motion type : angle height distance -->
+    <arg name="motion_name"     default="angle"/>
+    <!-- percentage_des rang (-100,100) -->
+    <arg name="percentage_des"     default="0.0"/>
+
+    <node pkg="iiwa_motion" type="test_command_robot" name="iiwa_relative_motion" output="screen" >    
+        <param name="motion_name"  value="$(arg motion_name)" />
+        <param name="percentage_des"  value="$(arg percentage_des)" />
+    </node>
+
+</launch>

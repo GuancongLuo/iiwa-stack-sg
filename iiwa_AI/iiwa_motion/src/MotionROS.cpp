@@ -144,6 +144,7 @@ bool MotionROS::setRelativePose(motion_msgs::RelativeMotion& motion)
     {
         std::cout << "Desired percetage : " << 1 + percentage/100.0 << std::endl;
         des_cam_object.pose.position.z = cur_cam_object.pose.position.z * scale;
+        // orientation change from camere pulist tf_cam_object, don't need to calculation in here. 
     }
     else if (name == "angle")
     {

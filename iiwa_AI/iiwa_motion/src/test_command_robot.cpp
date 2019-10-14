@@ -179,12 +179,18 @@ int main(int argc, char **argv)
 //        return 1;
 //    }
 
+
+    // get param 
+    std::string motion_name;
+    double percentage_des;
+    n.getParam("iiwa_relative_motion/motion_name",motion_name);
+    n.getParam("iiwa_relative_motion/percentage_des",percentage_des);
     // call the ros service 2
     std::cout <<"---------------------------------------\n";
     motion_msgs::SetRelativePose srv2;
-    srv2.request.motion.motion_name = "angle";
+    srv2.request.motion.motion_name = motion_name;
     srv2.request.motion.pose_cur = cur_pose;
-    srv2.request.motion.percentage_des = -45.0;
+    srv2.request.motion.percentage_des = percentage_des;
     std::cout <<"Start to call ros service /iiwa_motion/relative_motion......\n";
     if (client_relative.call(srv2))
     {

@@ -5,14 +5,16 @@
     and another one with name foo, a single button spam and a double button, bar and baz
     -->
 
-    <!-- <rosparam ns="iiwa" param="toolbarSpecifications" >
-        ['spec','handeye','take,remove', 'spec', 'foo', 'spam', 'bar,baz']
-    </rosparam> -->
-    
+    <arg name="direction_x_add"     default="0.0"/>
+    <arg name="direction_y_add"     default="0.0"/>
+    <arg name="direction_z_add"     default="0.0"/>
+
     <!-- position unit 'm' rotation unit 'rad/s degree' -->
-    <param name = "direction_x_add" type = "double" value = "-0.05" />
+
+    <!-- <param name = "direction_x_add" type = "double" value = "0" />
     <param name = "direction_y_add" type = "double" value = "0" />
-    <param name = "direction_z_add" type = "double" value = "0" />
+    <param name = "direction_z_add" type = "double" value = "-0.3" /> -->
+
     <!-- rotation around Tool Center Point -->
     <param name = "rotation_x" type = "double" value = "0" />
     <param name = "rotation_y" type = "double" value = "0" />
@@ -20,6 +22,11 @@
     <!-- CartesianPose (=1) or CartesianPoseLinear (=0) -->
     <param name = "command_cartisian_mode" type = "double" value = "1" />
 
-    <node pkg="iiwa_ros" type="iiwa_ros_cartesian_gauncong" name="CartesianPoseState_1569786053275419313" output="screen" />
+    <!-- <node pkg="iiwa_ros" type="iiwa_ros_cartesian_gauncong" name="CartesianPoseState_1569786053275419313" output="screen" > -->
+    <node pkg="iiwa_ros" type="iiwa_ros_cartesian_gauncong" name="CartesianPoseState" output="screen" >    
+        <param name="direction_x_add"  value="$(arg direction_x_add)" />
+        <param name="direction_y_add"  value="$(arg direction_y_add)" />
+        <param name="direction_z_add"  value="$(arg direction_z_add)" />
+    </node>
 
 </launch>
